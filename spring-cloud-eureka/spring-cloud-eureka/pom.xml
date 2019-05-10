@@ -11,6 +11,7 @@
 	<name>spring-cloud-eureka</name>
 	<description>Demo project for Spring cloud eureka</description>
 
+	<!--start -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
