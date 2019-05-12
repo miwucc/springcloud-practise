@@ -60,7 +60,73 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>config/*</include>
+					<include>public/**</include>
+					<include>static/**</include>
+					<include>templates/**</include>
+					<!--首先加载application.properties确定环境profile-->
+					<include>application.properties</include>
+					<include>application-${environment}.properties</include>
+				</includes>
+				<!--<excludes>-->
+					<!--<exclude>config/mybatis-generator-config.xml</exclude>-->
+					<!--<exclude>static/fonts/**</exclude>-->
+					<!--<exclude>static/js/plugins/layui/font/**</exclude>-->
+				<!--</excludes>-->
+			</resource>
+
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<!-- 不过滤下面列表 -->
+				<includes>
+					<include>static/fonts/**</include>
+					<include>static/js/plugins/layui/font/**</include>
+				</includes>
+			</resource>
+			<!--启动文件-->
+			<resource>
+				<directory>src/main/resources/sh</directory>
+				<filtering>true</filtering>
+				<targetPath>../</targetPath>
+			</resource>
+
+		</resources>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>peer1</id>
+			<properties>
+				<environment>peer1</environment>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>peer2</id>
+			<properties>
+				<environment>peer2</environment>
+			</properties>
+		</profile>
+	</profiles>
+
+
+
 
 
 </project>
