@@ -78,8 +78,8 @@
 					<include>static/**</include>
 					<include>templates/**</include>
 					<!--首先加载application.properties确定环境profile-->
-					<include>application.properties</include>
-					<include>application-${environment}.properties</include>
+					<include>application**.properties</include>
+					<!--<include>application-${environment}.properties</include>-->
 				</includes>
 				<!--<excludes>-->
 					<!--<exclude>config/mybatis-generator-config.xml</exclude>-->
