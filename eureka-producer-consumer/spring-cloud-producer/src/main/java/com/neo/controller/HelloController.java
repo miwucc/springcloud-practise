@@ -14,4 +14,12 @@ public class HelloController {
         System.out.println(11);
         return "hello "+name+"，this is first messge";
     }
+
+    //下面的请求默认是/hello?name=xx
+    @RequestMapping("/throwExp")
+    public String throwExp(@RequestParam String name)
+    {
+        System.out.println(22);
+        throw new RuntimeException("this is test RuntimeException");
+    }
 }
