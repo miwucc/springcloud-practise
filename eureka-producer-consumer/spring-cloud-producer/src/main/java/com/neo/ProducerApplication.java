@@ -28,7 +28,13 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 public class ProducerApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		SpringApplication.run(ProducerApplication.class, args);
+
+		Thread.sleep(1000L*30L);
+
+		System.exit(1);
+		System.out.println("exit!!!!!");
+
 	}
 }
