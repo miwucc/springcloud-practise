@@ -27,16 +27,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
  * 监听注册中心中的服务上下线事件，
  * 通知上下线服务类型以外的所有服务实时更新DiscoveryClient的Servcerlist同时刷新ribbon缓存
  * 这个解决方案的最大问题是，这里监听的上下线事件可能会收到多次，即使过滤掉复制请求，比如registered，好像
- * 不同状态(up和down)下都会register目前原因不明，down的时候会收到多次，且没有复制参数，不知道是不是bug
+ * 不同状态(up和down)下都会register，cancel的时候event会收到多次，比如EurekaInstanceCanceledEvent这个事件，为什么会抛出处理多次,其实是源码写得比较扯淡
+ * 因为在InstanceRegistry收到cancel请求处理的时候(cancel和internalCancel方法)，方法调用中子类和父类多次进行了事件抛出
+ * ，而且都是在cancel真正业务处理完之前进行进行event抛出，这个时候你捕捉到event，做缓存刷新，其实是没有用的
+ * 因为你刷的时候registry里面的服务都还没移除，你把event处理完了，别人才开始移除。。。
+ * 因为这个是同步事件，而且是先抛事件后处理，你说扯淡不。所以最好的方法只能是自己收到事件后
+ * 放到自己的一个异步线程中执行，执行的时候先等待1s，等主方法里面的cancel业务线真正完成服务移除，再刷新缓存。
+ *
  * 那么可能收到多次事件进行多次通知，同时因为是http请求，如果需要通知的服务很多，则效率也不高，说不定一轮下来也有个
  * 7，8s了，可能服务客户端已经轮询拉到新列表了，也做不到秒级切换。
  * 如果要提高这个性能其实可以引入redis等消息监听订阅机制，但是这个又把注册中心搞得更耦合了。
+ *
  *
  * 另外，注冊上來的instanceId建议配置為:eureka.instance.instance-id=${spring.cloud.client.ipAddress}:${server.port}
  * 不然通知到各个服务发送的instanceId可能各种格式都有，不一定方便使用
@@ -62,10 +71,12 @@ public class EurekaStateChangeListener {
     String NOFITYDOWNURL_SUFFIX = "/notifyInsAware/cancel";
 
     /**LRU map，当满1000个时候根据LRU移除元素*/
-    private ConcurrentLinkedHashMap<String, Long> cancelHistoryMap = new ConcurrentLinkedHashMap.Builder<String, Long>()
+    private ConcurrentLinkedHashMap<String, Long> dealHistoryMap = new ConcurrentLinkedHashMap.Builder<String, Long>()
             //设置最大元素数量
             .maximumWeightedCapacity(1000).build();;
 
+    //为了等eurekaServer事情真正做完后再进行通知，所以需要异步等待一会再进行通知
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /** http连接池,用于请求每个服务实例进行实时上下线通知, 最大连接数100，每个host(以上两个url会判定为同一个url)最大5，2秒验证返回超时时间*/
     private CloseableHttpClient httpClient = HttpUtils.createPoolClient(100, 5, 2 * 1000, 2 * 1000);
@@ -73,6 +84,51 @@ public class EurekaStateChangeListener {
     /** 获取服务注册最实时列表的实际实现类对象*/
     @Autowired
     PeerAwareInstanceRegistry peerAwareInstanceRegistry;
+
+
+    class NotifyTask implements  Runnable{
+        private ApplicationEvent event;
+        private String appName;
+        private String instanceId;
+        private String eventType;
+
+        public String getAppName() {
+            return appName;
+        }
+
+        public String getInstanceId() {
+            return instanceId;
+        }
+
+        public String getEventType() {
+            return eventType;
+        }
+
+        public NotifyTask(ApplicationEvent event, String appName, String instanceId, String eventType){
+            this.event = event;
+            this.appName = appName;
+            this.instanceId = instanceId;
+            this.eventType = eventType;
+        }
+
+        @Override
+        public void run() {
+
+            //为了等eurekaServer事情真正做完后再进行通知，所以需要异步等待一会再进行通知,这个时间没法精确控制，只能靠猜......
+            try {
+                Thread.sleep(500L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            logger.info("开始执行通知任务,eventType="+eventType+",appName="+appName+",instanceId="+instanceId);
+            //刷新readOnly缓存
+            refreshReadOnlyCache();
+            //缓存刷新完后进行其它服务列表成员通知
+            notifyAllOtherService(event);
+        }
+    }
+
 
     /**
      * 服务注册事件监听，收到后过滤掉eurekaServer之间的复制传播信息，过滤掉其它status非UP的注册，只传播UP的注册通知
@@ -96,10 +152,10 @@ public class EurekaStateChangeListener {
             return;
         }
 
-        //刷新readOnly缓存
-        refreshReadOnlyCache();
-        //缓存刷新完后进行其它服务列表成员通知
-        notifyAllOtherService(event);
+        if (checkTimeNeedNotify(event)){
+            //异步等待执行
+            executorService.execute(new NotifyTask(event,event.getInstanceInfo().getAppName(),event.getInstanceInfo().getInstanceId(),"UP"));
+        }
 
     }
 
@@ -116,24 +172,46 @@ public class EurekaStateChangeListener {
             logger.info(MarkerFactory.getMarker("CANCEL"), event.getAppName() + " 服务下线EVENT收到!");
         }
 
-        logger.info("EurekaInstanceCanceledEvent 收到! 当前下线实例：" + event.getAppName() + "," + event.getServerId());
-
-        //这儿因为EurekaInstanceCanceledEvent 没有区分是否Replication，所以会收到多次事件，为了解决这个问题可以自己写一个1秒内的通知记录维护列表，如果1秒内收到多个同样instanceId的则不再重复发送
-        Long lastTimeSecMs = cancelHistoryMap.get(event.getServerId());
-        //如果1秒内同一个实例通知过一次，则不做2次通知
-        if(lastTimeSecMs!=null&&(System.currentTimeMillis()-lastTimeSecMs.longValue()<1000)){
-            logger.info("EurekaInstanceCanceledEvent 收到! 当前下线实例：" + event.getAppName() + "," + event.getServerId()+",因为1s内做过一次通知因此不再做通知");
-            return;
+        if (checkTimeNeedNotify(event)){
+            //异步等待执行
+            executorService.execute(new NotifyTask(event,event.getAppName(),event.getServerId(),"CANCEL"));
         }
 
-        //刷新readOnly缓存
-        refreshReadOnlyCache();
-        //缓存刷新完后进行其它服务列表成员通知
-        notifyAllOtherService(event);
-        //cancel的时候,通知完了记录一次最近通知时间
-        cancelHistoryMap.put(event.getServerId(),System.currentTimeMillis());
     }
 
+    /**检查最近ns内是不是做过处理*/
+    private boolean checkTimeNeedNotify(ApplicationEvent event) {
+        //这儿因为EurekaInstanceCanceledEvent 会收到多次事件，为了解决这个问题可以自己写一个1秒内的通知记录维护列表，如果1秒内收到多个同样instanceId的则不再重复发送
+        Long repeatCheckSecMs = 5000L;
+        Long lastTimeSecMs = 0L;
+        String dealKey=null;
+
+        if(event instanceof EurekaInstanceCanceledEvent){
+            EurekaInstanceCanceledEvent canceledEvent =  (EurekaInstanceCanceledEvent)event;
+            dealKey = "CANCEL_"  + canceledEvent.getAppName()+"_"+canceledEvent.getServerId();
+            lastTimeSecMs = dealHistoryMap.get(dealKey);
+
+        }else if(event instanceof EurekaInstanceRegisteredEvent){
+            EurekaInstanceRegisteredEvent registeredEvent =  (EurekaInstanceRegisteredEvent)event;
+            dealKey = "REGISTER_"  + registeredEvent.getInstanceInfo().getAppName()+"_"+registeredEvent.getInstanceInfo().getInstanceId();
+            lastTimeSecMs = dealHistoryMap.get(dealKey);
+        }
+
+        if(dealKey==null){
+            return false;
+        }
+
+        //如果1秒内同一个实例通知过一次，则不做2次通知
+        if(lastTimeSecMs!=null&&(System.currentTimeMillis()-lastTimeSecMs.longValue()<repeatCheckSecMs)){
+            logger.info("EurekaInstanceCanceledEvent 收到! 当前下线实例key：" + dealKey +",因为1s内做过一次通知因此不再做通知");
+            return false;
+        }else{
+            //马上记录一次最近处理时间，不管后面异步执行是否完成，这样才能在异步执行完之前block点重复的通知请求
+            dealHistoryMap.put(dealKey,System.currentTimeMillis());
+        }
+
+        return true;
+    }
 
 
     /** 缓存刷新完后进行其它服务列表成员通知 */
@@ -229,7 +307,7 @@ public class EurekaStateChangeListener {
 
             //responseCache缓存在第一次注册之后才会生成,这之前不要调用
             if(responseCacheImpl!=null) {
-                Field shouldUseReadOnlyResponseCacheField = ResponseCacheImpl.class.getDeclaredField("responseCache");
+                Field shouldUseReadOnlyResponseCacheField = ResponseCacheImpl.class.getDeclaredField("shouldUseReadOnlyResponseCache");
                 shouldUseReadOnlyResponseCacheField.setAccessible(true);
                 boolean shouldUseReadOnlyResponseCache = shouldUseReadOnlyResponseCacheField.getBoolean(responseCacheImpl);
 
