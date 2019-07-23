@@ -1,5 +1,6 @@
 package com.neo.insaware;
 
+import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.eureka.lease.Lease;
 import com.netflix.eureka.registry.AbstractInstanceRegistry;
@@ -60,6 +61,11 @@ public class EurekaStateChangeListener {
     String NOFITYUPURL_SUFFIX = "/notifyInsAware/up";
     String NOFITYDOWNURL_SUFFIX = "/notifyInsAware/cancel";
 
+    /**LRU map，当满1000个时候根据LRU移除元素*/
+    private ConcurrentLinkedHashMap<String, Long> cancelHistoryMap = new ConcurrentLinkedHashMap.Builder<String, Long>()
+            //设置最大元素数量
+            .maximumWeightedCapacity(1000).build();;
+
 
     /** http连接池,用于请求每个服务实例进行实时上下线通知, 最大连接数100，每个host(以上两个url会判定为同一个url)最大5，2秒验证返回超时时间*/
     private CloseableHttpClient httpClient = HttpUtils.createPoolClient(100, 5, 2 * 1000, 2 * 1000);
@@ -102,10 +108,9 @@ public class EurekaStateChangeListener {
      *
      * @param event
      */
-    //TODO 这儿因为EurekaInstanceCanceledEvent 没有区分是否Replication，所以会收到多次事件，为了解决这个问题可以自己写一个1秒内的通知记录维护列表，如果1秒内收到多个同样instanceId的则不再重复发送
     @EventListener
             (condition = "#event.replication==false")
-    public void listenDown(EurekaInstanceCanceledEvent event){
+    public void listenCancel(EurekaInstanceCanceledEvent event){
 
         if(!event.isReplication()){
             logger.info(MarkerFactory.getMarker("CANCEL"), event.getAppName() + " 服务下线EVENT收到!");
@@ -113,10 +118,20 @@ public class EurekaStateChangeListener {
 
         logger.info("EurekaInstanceCanceledEvent 收到! 当前下线实例：" + event.getAppName() + "," + event.getServerId());
 
+        //这儿因为EurekaInstanceCanceledEvent 没有区分是否Replication，所以会收到多次事件，为了解决这个问题可以自己写一个1秒内的通知记录维护列表，如果1秒内收到多个同样instanceId的则不再重复发送
+        Long lastTimeSecMs = cancelHistoryMap.get(event.getServerId());
+        //如果1秒内同一个实例通知过一次，则不做2次通知
+        if(lastTimeSecMs!=null&&(System.currentTimeMillis()-lastTimeSecMs.longValue()<1000)){
+            logger.info("EurekaInstanceCanceledEvent 收到! 当前下线实例：" + event.getAppName() + "," + event.getServerId()+",因为1s内做过一次通知因此不再做通知");
+            return;
+        }
+
         //刷新readOnly缓存
         refreshReadOnlyCache();
         //缓存刷新完后进行其它服务列表成员通知
         notifyAllOtherService(event);
+        //cancel的时候,通知完了记录一次最近通知时间
+        cancelHistoryMap.put(event.getServerId(),System.currentTimeMillis());
     }
 
 
