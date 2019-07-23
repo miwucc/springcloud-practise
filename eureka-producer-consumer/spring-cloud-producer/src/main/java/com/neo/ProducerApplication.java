@@ -31,10 +31,11 @@ public class ProducerApplication {
 	public static void main(String[] args) throws InterruptedException {
 		SpringApplication.run(ProducerApplication.class, args);
 
-		Thread.sleep(1000L*30L);
-
-		System.exit(1);
-		System.out.println("exit!!!!!");
+//		模拟30s后正常关闭服务，这个时候会发unregister和cancel事件给eurekaServer
+//		Thread.sleep(1000L*30L);
+//
+//		System.exit(1);
+//		System.out.println("exit!!!!!");
 
 	}
 }

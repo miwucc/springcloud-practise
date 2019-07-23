@@ -17,6 +17,18 @@ public class ConsumerController {
     @Autowired
     RestTemplate restTemplate;
 
+    /**直接返回调用*/
+    @RequestMapping("/hello/local/{name}")
+    public String indexLocal(@PathVariable("name") String name) {
+        return "success ! "+name;
+    }
+
+    /**直接返回抛出异常*/
+    @RequestMapping("/hello/localExp/{name}")
+    public String indexLocalExp(@PathVariable("name") String name) {
+        throw new RuntimeException("this is test Exp");
+    }
+
     /**测试FeignClient的方式远程调用*/
     @RequestMapping("/hello/{name}")
     public String index(@PathVariable("name") String name) {
