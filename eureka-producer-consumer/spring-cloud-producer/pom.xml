@@ -39,6 +39,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<!--这儿增加一个redis引入，但是又不配置连接，可以用来模拟开启actuator的情况下上报服务健康信息当前服务为down的情况-->
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-data-redis</artifactId>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<dependencyManagement>

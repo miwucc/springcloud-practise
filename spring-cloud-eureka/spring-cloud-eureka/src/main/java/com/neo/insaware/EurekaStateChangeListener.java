@@ -141,7 +141,7 @@ public class EurekaStateChangeListener {
 
         if(!event.isReplication()){
             logger.info(MarkerFactory.getMarker("UP"), event.getInstanceInfo().getAppName() + " 服务注册EVENT收到!");
-        }
+    }
 
         logger.info("EurekaInstanceRegisteredEvent 收到! 当前注册实例：" + event.getInstanceInfo().getAppName() + "," + event.getInstanceInfo().getInstanceId());
 
