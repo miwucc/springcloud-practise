@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.3.RELEASE</version>
+		<version>1.5.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -22,7 +22,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.7</java.version>
-		<spring-cloud.version>Dalston.RELEASE</spring-cloud.version>
+		<!--<spring-cloud.version>Dalston.RELEASE</spring-cloud.version>--><!--Dalston.SR5 为Dalston的第一个版本，太老了 -->
+		<spring-cloud.version>Dalston.SR5</spring-cloud.version><!--Dalston.SR5 为Dalston的最后一个最新版本 -->
 	</properties>
 
 	<dependencies>
