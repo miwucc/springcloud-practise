@@ -1,15 +1,12 @@
 package com.neo.controller;
 
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Random;
 
 @RestController
@@ -54,6 +51,12 @@ public class HelloController {
 
         return "hello "+name+"，this is helloHystrixTest messge";
 
+    }
+
+    @RequestMapping("/noResponse")
+    public void noResponse(@RequestParam String name)
+    {
+        System.out.println("noResponse!");
     }
 
 

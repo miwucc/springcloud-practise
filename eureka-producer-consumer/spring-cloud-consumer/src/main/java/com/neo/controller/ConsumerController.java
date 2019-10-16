@@ -1,6 +1,7 @@
 package com.neo.controller;
 
 import com.neo.remote.HelloRemote;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +59,49 @@ public class ConsumerController {
            result =  restTemplate.getForEntity("http://spring-cloud-producer/throwExp?name={1}",String.class,name).getBody();
         }catch (HttpServerErrorException ex){
             result = ex.getStatusCode()+" "+ex.getResponseBodyAsString();
+        }catch (Exception e){
+            result = "服务器异常";
+        }
+        return result;
+    }
+
+    @RequestMapping("/testThrowExpByFeign/{name}")
+    public String index4(@PathVariable("name") String name) {
+        String result="";
+        try{
+            //服务名访问地址+路径
+            result =  HelloRemote.throwExp(name);
+        }catch (HttpServerErrorException ex){
+            result = ex.getStatusCode()+" "+ex.getResponseBodyAsString();
+        //如果是用feign调用，被调用方抛出了异常(实际是http500)，则feigin底层会包装成FeignException
+        }catch(FeignException feignException){
+            System.out.println("status:"+feignException.status()+",message:"+feignException.getMessage());
+            if(feignException instanceof  MyFeignException){
+                MyFeignException ex = (MyFeignException)feignException;
+                result="status:"+ex.status()+",reason:"+ex.getExceptionContent().getMessage();
+                System.out.println(result);
+            }
+        }catch (Exception e){
+            result = "服务器异常";
+        }
+        return result;
+    }
+
+    @RequestMapping("/testNoResponseByFeign/{name}")
+    public String index5(@PathVariable("name") String name) {
+        String result=null;
+        try{
+            //服务名访问地址+路径
+            HelloRemote.noResponse(name);
+        }catch (HttpServerErrorException ex){
+            result = ex.getStatusCode()+" "+ex.getResponseBodyAsString();
+        }catch(FeignException feignException){
+            System.out.println("status:"+feignException.status()+",message:"+feignException.getMessage());
+            if(feignException instanceof  MyFeignException){
+                MyFeignException ex = (MyFeignException)feignException;
+                result="status:"+ex.status()+",reason:"+ex.getExceptionContent().getMessage();
+                System.out.println(result);
+            }
         }catch (Exception e){
             result = "服务器异常";
         }
