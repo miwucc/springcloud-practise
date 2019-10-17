@@ -65,6 +65,14 @@ public class ConsumerController {
         return result;
     }
 
+    /**异常的处理方式有两种：
+     * 一种是自己实现一个FeignException的继承异常类，用自己的ErrorDecoder来解析
+     * 异常并返回，在调用端捕捉后做相应处理。比如下面的代码。
+     * 一种是在被调用端统一处理调用函数，对调用函数抛出的异常都做捕捉然后封装成一个对象，比如XXResponse，
+     * 然后调用端假如catch到了其它Exception，则就说明不是业务异常，是网络一类的，业务是否异常全部在XXResponse里面根据返回的data和code来组判断
+     *
+     *
+     * */
     @RequestMapping("/testThrowExpByFeign/{name}")
     public String index4(@PathVariable("name") String name) {
         String result="";
