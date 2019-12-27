@@ -1,0 +1,7 @@
+com\neo\controller\ConsumerController.class
+com\neo\insaware\EurekaInsAwareClientListener.class
+com\neo\controller\RestTemplateConfig.class
+com\neo\insaware\ConsumerRibbonClientConfig.class
+com\neo\remote\HelloRemote.class
+com\neo\ConsumerApplication.class
+com\neo\controller\TestRibbonClientConfig.class

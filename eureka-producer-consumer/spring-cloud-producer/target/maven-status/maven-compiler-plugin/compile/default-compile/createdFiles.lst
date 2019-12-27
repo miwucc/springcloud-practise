@@ -1,0 +1,4 @@
+com\neo\insaware\ConsumerRibbonClientConfig.class
+com\neo\ProducerApplication.class
+com\neo\insaware\EurekaInsAwareClientListener.class
+com\neo\controller\HelloController.class

@@ -10,11 +10,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConsumerController {
 
     @Autowired
-    HelloRemote HelloRemote;
+    HelloRemote helloRemote;
 	
     @RequestMapping("/hello/{name}")
     public String index(@PathVariable("name") String name) {
-        return HelloRemote.hello(name);
+        return helloRemote.hello(name);
     }
+
+
+    @RequestMapping("/hello-hystrix/{name}")
+    public String helloystrix(@PathVariable("name") String name) {
+        return helloRemote.helloHystrixTest(name);
+    }
+
+
+
 
 }

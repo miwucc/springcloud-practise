@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Random;
-
 @RestController
 public class HelloController {
 
@@ -38,9 +36,16 @@ public class HelloController {
     @RequestMapping(value="/hello-hystrix-test", method=RequestMethod.GET)
     public String helloHystrixTest(@RequestParam String name) throws InterruptedException {
 
+        if(name.equals("yuanduanyichang")){
+            throw new RuntimeException("我是远端抛出的异常");
+        }
+
 //        ServiceInstance instance = client.getLocalServiceInstance();
 
-        int sleepMileSec = new Random().nextInt(3000);
+        int sleepMileSec = 10;
+        if(name.equals("moniyanchi")){
+            sleepMileSec = 500000;
+        }
         System.out.println("start sleep "+sleepMileSec);
 
         Thread.sleep(sleepMileSec);
