@@ -2,12 +2,14 @@ package com.neo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.serviceregistry.Registration;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-@RestController
+//@RestController 这个等于加了一个@ResponseBody会固定进行body序列化返回，无法进行redirect
+@Controller
 public class HelloController {
 
     @Autowired
@@ -18,6 +20,7 @@ public class HelloController {
 
     //下面的请求默认是/hello?name=xx
     @RequestMapping("/hello")
+    @ResponseBody
     public String index(@RequestParam String name)
     {
         System.out.println(11);
@@ -26,14 +29,22 @@ public class HelloController {
 
     //下面的请求默认是/hello?name=xx
     @RequestMapping("/throwExp")
+    @ResponseBody
     public String throwExp(@RequestParam String name)
     {
         System.out.println(22);
         throw new RuntimeException("this is test RuntimeException");
     }
 
+
+    @RequestMapping(value="/hello-hystrix-test-redirect", method=RequestMethod.GET)
+    public String helloHystrixTestRedirect(@RequestParam String name) throws InterruptedException{
+        return "redirect:/hello?name=这是测试重定向";
+    }
+
     //下面的请求默认是/hello?name=xx
     @RequestMapping(value="/hello-hystrix-test", method=RequestMethod.GET)
+    @ResponseBody
     public String helloHystrixTest(@RequestParam String name) throws InterruptedException {
 
         if(name.equals("yuanduanyichang")){
@@ -59,6 +70,7 @@ public class HelloController {
     }
 
     @RequestMapping("/noResponse")
+    @ResponseBody
     public void noResponse(@RequestParam String name)
     {
         System.out.println("noResponse!");
