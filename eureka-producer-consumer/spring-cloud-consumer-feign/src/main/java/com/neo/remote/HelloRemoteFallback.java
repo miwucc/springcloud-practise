@@ -20,4 +20,9 @@ public class HelloRemoteFallback implements HelloRemote{
         System.out.println("helloHystrixTest is fallback!!");
         return "helloHystrixTest is fallback!!";
     }
+
+    @Override
+    public String helloHystrixTestRedirect(String name) {
+        throw new RuntimeException("远端异常咯！");
+    }
 }

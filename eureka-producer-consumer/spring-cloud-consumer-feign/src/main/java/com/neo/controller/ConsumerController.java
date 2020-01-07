@@ -20,8 +20,27 @@ public class ConsumerController {
 
     @RequestMapping("/hello-hystrix/{name}")
     public String helloystrix(@PathVariable("name") String name) {
-        return helloRemote.helloHystrixTest(name);
+        String result="default";
+        try{
+            result =  helloRemote.helloHystrixTest(name);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
     }
+
+    @RequestMapping("/hello-hystrix-redirect/{name}")
+    public String helloystrixRedirect(@PathVariable("name") String name) {
+        String result="default";
+        try{
+            result =  helloRemote.helloHystrixTestRedirect(name);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
 
 
 

@@ -11,8 +11,8 @@ import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboar
 //@EnableDiscoveryClient
 //开启feign功能
 @EnableFeignClients
-@EnableHystrixDashboard
-@EnableCircuitBreaker
+@EnableHystrixDashboard//如果有引入dashborad需要开启，则需要这个注释
+@EnableCircuitBreaker//如果有开启hystrix actuator端点需要观察则需要这个注释
 @EnableEurekaClient
 public class ConsumerFeignApplication {
 
