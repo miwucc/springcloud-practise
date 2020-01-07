@@ -33,7 +33,7 @@ public class HelloService {
 //            groupKey = "helloRemoteSerivceGroup",//默认类名简写，这里就是"HelloService"
 //            commandKey="helloRemoteSerivce",//默认方法名字简写，这里就是"helloRemoteSerivceSync"
 //            threadPoolKey="helloRemoteSerivceThread"//默认null，但是最终设值的时候如果是null会用group名替代
-//            fallbackMethod = "helloRemoteSerivceFallback",//是否实现降级方法，默认不实现,run方法执行中，
+            fallbackMethod = "helloRemoteSerivceFallback",//是否实现降级方法，默认不实现,run方法执行中，
             // 除了BadRequestException以外，默认都会用走fallback方法，
 //            当异常抛出，如果你是同步调用，找不到fallback方法则会继续朝上抛,而如果是异步调用,会报observale.onerror异常打印到rx事件流中，所以，尽量所有都实现fallback方法再在里面根据异常进行处理返回
 //    ,ignoreExceptions = XXXException.class 当这个异常抛出的时候不促发降级方法
@@ -75,26 +75,15 @@ public class HelloService {
         return resultStr;
     }
 
-    /**只要不是HystrixBadRequestException,其它异常都会触发进入fallback方法，ex可能会被包装，根据ex来处理相关事务返回降级事务或者原地抛出*/
+    /**只要不是HystrixBadRequestException,其它run时候产生的异常都会触发进入fallback方法，ex可能是被hystrix包装后的异常类型，比如远端异常，http状态是5xx，一般会被封装为HttpServerErrorException到这里
+     * 根据ex来处理相关事务返回降级事务或者原地抛出*/
     public String helloRemoteSerivceFallback(String name,Throwable ex){
 
-//这里如果直接抛出异常，则obser的onError处理里面可以拿到原异常而不是被包装后的异常，但是Futrue还是拿不到
-//        try {
-//            throw ex;
-//        } catch (Throwable throwable) {
-//            throwable.printStackTrace();
-//        }
-        //远端抛出异常，也会被作为一次异常技术，并返回到这里，但是异常类型是HttpServerErrorException
+        //降级方法的结果会返回给调用线程，如果在这里直接抛出异常，也会直接抛给调用线程
 
-
-
-//        远程执行出错返回的，常用的异常ExceptionNotWrappedByHystrix
-//        ExceptionNotWrappedByHystrix Exception 如果 originalException 是 ExceptionNotWrappedByHystrix 的实现时，则返回的【异常 Observable】不使用 HystrixRuntimeException 包装
-//        HystrixRuntimeException RuntimeException  //没有配置fail0
-//
 
         //如果是远端抛异常，这这里接到的是HttpServerErrorException
-        //本机程序就出错抛出的异常，会原封不动的抛出来
+        //非远端抛出的异常，会原封不动的抛出来
         if(ex!=null && ex instanceof RuntimeException){
             System.out.println("catch exception and make the fallback!"+",ex="+ex.toString());
             return "catch exception and make the fallback!"+",ex="+ex.toString();
