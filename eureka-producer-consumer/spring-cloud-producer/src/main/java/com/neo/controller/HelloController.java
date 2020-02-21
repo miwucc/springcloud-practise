@@ -24,7 +24,7 @@ public class HelloController {
     public String index(@RequestParam String name)
     {
         System.out.println(11);
-        return "hello "+name+"，this is first messge";
+        return "hello "+name+"，this is first messge from server1";
     }
 
     //下面的请求默认是/hello?name=xx
