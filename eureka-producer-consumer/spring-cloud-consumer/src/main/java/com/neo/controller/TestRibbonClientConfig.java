@@ -24,13 +24,15 @@ public class TestRibbonClientConfig {
 
     /**
      * 自定义负载均衡准则
-     *
+     * 这个配置bean会优先于properties配置文件，这里也可以用自己的自定义负载均衡策略，RibbonClient的name可以用于配置proiperties中的
+     * <clientName>.ribbon.NFLoadBalancerRuleClassName
+     * 这里为了测试properties中的NFLoadBalancerRuleClassName配置，这里先关掉
      * @return
      */
-    @Bean
-    public IRule ribbonRule() {
-        return new RoundRobinRule();
-    }
+//    @Bean
+//    public IRule ribbonRule() {
+//        return new RoundRobinRule();
+//    }
 
 
 }

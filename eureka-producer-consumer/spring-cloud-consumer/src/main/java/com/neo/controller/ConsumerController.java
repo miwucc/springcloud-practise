@@ -1,5 +1,6 @@
 package com.neo.controller;
 
+import com.neo.controller.ribbonrule.RibbonUserIdHolder;
 import com.neo.remote.HelloRemote;
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class ConsumerController {
@@ -20,7 +23,11 @@ public class ConsumerController {
 
     /**直接返回调用*/
     @RequestMapping("/hello/local/{name}")
-    public String indexLocal(@PathVariable("name") String name) {
+    public String indexLocal(@PathVariable("name") String name, HttpServletRequest request) {
+
+        String sessionId = request.getSession().getId();
+        System.out.println("sessionId="+sessionId);
+
         return "success ! "+name;
     }
 
@@ -32,7 +39,14 @@ public class ConsumerController {
 
     /**测试FeignClient的方式远程调用*/
     @RequestMapping("/hello/{name}")
-    public String index(@PathVariable("name") String name) {
+    public String index(@PathVariable("name") String name, HttpServletRequest request) {
+
+        String sessionId = request.getSession().getId();
+        System.out.println("sessionId="+sessionId);
+        //故意设置一个用户ID，用ThreadLocal传到ribbon里面进行分片负债均衡
+        int userID = 1002;
+        RibbonUserIdHolder.put(userID);
+
         return HelloRemote.hello(name);
     }
 
