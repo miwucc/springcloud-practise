@@ -38,7 +38,7 @@ public class CustomeRule extends AbstractLoadBalancerRule
 
             Integer userId = RibbonUserIdHolder.get();
 
-            List<Server> upList = lb.getReachableServers(); //当前存活的服务
+            List<Server> upList = lb.getReachableServers(); //当前存活的服务，如果不是UP状态，或者被从eureka中心delete，ribbon节点感应到后，会从ReachableList里面移除掉
             List<Server> allList = lb.getAllServers();  //获取全部的服务
 
             int serverCount = allList.size();
@@ -69,8 +69,23 @@ public class CustomeRule extends AbstractLoadBalancerRule
                 }
             //如果有用户ID，则采用用户ID取当前可用服务器取模的方式
             }else{
-                Integer idx = userId%upServerCount;
-                server = upList.get(idx);
+                if(upList!=null){
+                    for(Server s1 : upList){
+                        System.out.println("id="+s1.getId()+",alive="+s1.isAlive());
+                    }
+    //                Integer idx = userId%upServerCount;
+    //                server = upList.get(idx);
+
+                    //方便测试改为指定，用来模拟9900这个实力pause变为down状态后会切换为使用另一个实例
+                    server = upList.get(0);
+                    if(!server.getId().equals("192.168.17.1:9900")){
+                        if(upList.size()>1){
+                            server = upList.get(1);
+                        }
+                    }
+
+                }
+
             }
 
 
