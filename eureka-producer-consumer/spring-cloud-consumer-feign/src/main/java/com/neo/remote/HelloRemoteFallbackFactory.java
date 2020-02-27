@@ -1,6 +1,7 @@
 
 package com.neo.remote;
 
+import com.neo.controller.User;
 import feign.hystrix.FallbackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +17,21 @@ public class HelloRemoteFallbackFactory implements FallbackFactory<HelloRemote> 
 
     @Override
     public HelloRemote create(Throwable cause) {
-        logger.error("remote function is fallback ",cause);
+//        所以这个位置不要乱写逻辑
+//        logger.error("remote function is fallback ",cause);这个方法在初始化的时候被调用，然后返回下面的对象回去
 
         //在捕捉到异常后再考虑如何进行callback处理
         return new HelloRemote() {
 
             @Override
+            public String addUser(User user) {
+                logger.error("remote function addUser is fallback",cause);
+                return "this is fallback addUser!";
+            }
+
+            @Override
             public String hello(String name) {
+                logger.error("remote function is fallback ",cause);
                 return "this is fallback hello!";
             }
 

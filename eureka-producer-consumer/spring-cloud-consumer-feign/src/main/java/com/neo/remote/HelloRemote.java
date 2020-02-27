@@ -1,5 +1,6 @@
 package com.neo.remote;
 
+import com.neo.controller.User;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,5 +51,13 @@ public interface HelloRemote {
 
     @RequestMapping(value="/hello-hystrix-test-redirect", method=RequestMethod.GET)
     public String helloHystrixTestRedirect(@RequestParam(value = "name") String name);
+
+    /**
+     * GET 方式，默认情况是不允许用GET方式传递POJO的，底层fegin会默认切换成POST，不过这里用了自己的拦截FeignRequestGetPOJOInterceptor来进行GET传递POJO
+     * @param user user
+     * @return 添加结果
+     */
+    @RequestMapping(value = "/add-user", method = RequestMethod.GET)
+    String addUser(User user);
 
 }

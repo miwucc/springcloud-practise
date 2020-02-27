@@ -25,15 +25,27 @@
 		<spring-cloud.version>Dalston.SR5</spring-cloud.version>
 	</properties>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-dependencies</artifactId>
-		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.cloud</groupId>-->
+			<!--<artifactId>spring-cloud-dependencies</artifactId>-->
+		<!--</dependency>-->
 		<!--feign是融合了ribbon和hystrix的声明式微服务调用方式-->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -73,19 +85,34 @@
 			<artifactId>fastjson</artifactId>
 			<version>1.2.47</version>
 		</dependency>
+
+		<!-- 引入 httpclient,上面不会依赖引入，这个必须要自己引入 -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<!-- 引入 feign 对 httpclient 的支持 -->
+		<!--<dependency>-->
+			<!--<groupId>com.netflix.feign</groupId>-->
+			<!--<artifactId>feign-httpclient</artifactId>-->
+			<!--<version>8.18.0</version>-->
+		<!--</dependency>-->
+
+		<!--原厂的feign-httpclient再在16年最新包，太老了，换成比较新的开源版本,版本需要和feign核心对齐-->
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-httpclient</artifactId>
+			<!--<version>9.5.0</version>-->
+		</dependency>
+		<!--&lt;!&ndash;OkHttp 和 httpclient任意选一个，两个做的事情都是一样的。配置入口OkHttpFeignLoadBalancedConfiguration &ndash;&gt;-->
+		<!--<dependency>-->
+			<!--<groupId>io.github.openfeign</groupId>-->
+			<!--<artifactId>feign-okhttp</artifactId>-->
+			<!--&lt;!&ndash;<version>9.5.0</version>&ndash;&gt;-->
+		<!--</dependency>-->
+
     </dependencies>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>

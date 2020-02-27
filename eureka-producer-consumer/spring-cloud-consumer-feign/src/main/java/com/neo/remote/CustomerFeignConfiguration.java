@@ -2,6 +2,7 @@ package com.neo.remote;
 
 import com.neo.controller.MyFeignErrorDecoder2;
 import feign.codec.ErrorDecoder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

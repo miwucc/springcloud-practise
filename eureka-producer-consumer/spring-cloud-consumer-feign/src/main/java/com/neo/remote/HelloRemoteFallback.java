@@ -1,5 +1,6 @@
 package com.neo.remote;
 
+import com.neo.controller.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -24,5 +25,10 @@ public class HelloRemoteFallback implements HelloRemote{
     @Override
     public String helloHystrixTestRedirect(String name) {
         throw new RuntimeException("远端异常咯！");
+    }
+
+    @Override
+    public String addUser(User user) {
+        return null;
     }
 }
