@@ -3,10 +3,7 @@ package com.neo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 //@RestController 这个等于加了一个@ResponseBody会固定进行body序列化返回，无法进行redirect
 @Controller
@@ -17,6 +14,13 @@ public class HelloController {
 
 //    @Autowired
 //    private DiscoveryClient client; // 服务发现客户端
+
+    //测试通过自己的FEGIN拦截器之后，GET请求可以传递POJO,如果fegin那边不用拦截器处理，这儿会User里面的属性值都是只能得到null
+    @GetMapping("/add-user")
+    @ResponseBody
+    public String addUser(User user){
+        return "add user success!" + user.getName();
+    }
 
     //下面的请求默认是/hello?name=xx
     @RequestMapping("/hello")
