@@ -18,14 +18,25 @@ import org.springframework.web.client.RestTemplate;
 @Component("Myhealth")
 public class MyHealth implements HealthIndicator {
 
-    public static int errorCode = 0;//健康状态
+    public static final int GOOD = 0;
+    public static final int DOWN = 0;
+
+    public static int healthCode = GOOD;//健康状态
+
+    public static int getHealthCode() {
+        return healthCode;
+    }
+
+    public static void setHealthCode(int healthCode) {
+        MyHealth.healthCode = healthCode;
+    }
 
     @Override
     public Health health() {
 
         // perform some specific health check
-        if (errorCode != 0) {
-            return Health.down().withDetail("Myhealth Error Code1", errorCode+",hehehe").build();
+        if (healthCode != GOOD) {
+            return Health.down().withDetail("Myhealth Error Code1", healthCode+",hehehe").build();
         }
         return Health.up().withDetail("Myhealth Error Code2","all is ok").build();
 
@@ -38,7 +49,7 @@ public class MyHealth implements HealthIndicator {
         public String unhealth(@PathVariable String data) {
 
             if(data!=null){
-                errorCode = Integer.valueOf(data);
+                healthCode = Integer.valueOf(data);
                 return "set "+data+" success!";
             }else{
                 return "fail data is null";
