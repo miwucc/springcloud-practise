@@ -1,0 +1,10 @@
+[
+  {
+    "resource": "GET:http://spring-cloud-producer/hello",
+    "controlBehavior": 0,
+    "count": 1.0,
+    "grade": 1,
+    "limitApp": "default",
+    "strategy": 0
+  }
+]

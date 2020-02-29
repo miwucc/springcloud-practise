@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.47</version>
+			<version>1.2.62</version>
 		</dependency>
 
 		<!-- 引入 httpclient,上面不会依赖引入，这个必须要自己引入 -->
@@ -110,6 +110,39 @@
 			<!--<artifactId>feign-okhttp</artifactId>-->
 			<!--&lt;!&ndash;<version>9.5.0</version>&ndash;&gt;-->
 		<!--</dependency>-->
+
+		<!--sentinel引入 这个版本默认最高只支持1.7.0的核心，不支持1.7.1-->
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+			<version>1.5.1.RELEASE</version>
+		</dependency>
+
+		<!-- 要适配fegin必须引入这个包
+		-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<version>1.4.7.RELEASE</version>
+		</dependency>
+
+		<!-- 本来有上面2个包已经可以用了，但是版本只能到1.7.0 ,但是现在没有1.7.0的dashboard，只有1.7.1的，
+		所以下面引入三个来强行升级到1.7.1测试看是否可以正常使用 ，这三个版本必须和dashboard保持一致才能正常和dashboad交互-->
+		<dependency>
+			<groupId>com.alibaba.csp</groupId>
+			<artifactId>sentinel-core</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.csp</groupId>
+			<artifactId>sentinel-transport-simple-http</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.csp</groupId>
+			<artifactId>sentinel-annotation-aspectj</artifactId>
+			<version>1.7.1</version>
+		</dependency>
 
     </dependencies>
 

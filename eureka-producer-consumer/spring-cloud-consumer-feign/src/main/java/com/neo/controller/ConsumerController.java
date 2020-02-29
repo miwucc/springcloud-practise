@@ -29,6 +29,7 @@ public class ConsumerController {
     public String helloystrix(@PathVariable("name") String name) {
         String result="default";
         try{
+            //开启了sentinel-feign之后，所有的feign自动生成entry资源，只需要在dashboard做流量配置就可以了
             result =  helloRemote.helloHystrixTest(name);
         }catch (Exception e){
             e.printStackTrace();
