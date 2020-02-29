@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.neo</groupId>
+	<artifactId>spring-cloud-producer-sentinel</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>spring-cloud-producer-sentinel</name>
+	<description>Demo project for Spring cloud producer</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.7</java.version>
+		<!--<spring-cloud.version>Dalston.RELEASE</spring-cloud.version>--><!--Dalston.SR5 为Dalston的第一个版本，太老了 -->
+		<spring-cloud.version>Dalston.SR5</spring-cloud.version><!--Dalston.SR5 为Dalston的最后一个最新版本 -->
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!--引入安全包来保证actuator web暴露接口的安全性 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!--这儿增加一个redis引入，但是又不配置连接，可以用来模拟开启actuator的情况下上报服务健康信息当前服务为down的情况-->
+		<!--<dependency>-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-data-redis</artifactId>-->
+		<!--</dependency>-->
+
+		<!-- spa 服务监控中心的客户端依赖-->
+		<!--<dependency>-->
+			<!--<groupId>de.codecentric</groupId>-->
+			<!--<artifactId>spring-boot-admin-starter-client</artifactId>-->
+			<!--<version>1.5.7</version>-->
+		<!--</dependency>-->
+
+		<dependency>
+			<groupId>com.alibaba.csp</groupId>
+			<artifactId>sentinel-core</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+
+		<!--&lt;!&ndash;dashboard 要使用得动态规则API接口包 transport的版本必须要和dashboard和core保持一致&ndash;&gt;-->
+		<dependency>
+			<groupId>com.alibaba.csp</groupId>
+			<artifactId>sentinel-transport-simple-http</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+
+		<!-- 支持注解还必须引入下面的包 -->
+		<dependency>
+			<groupId>com.alibaba.csp</groupId>
+			<artifactId>sentinel-annotation-aspectj</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+
+		<!--<dependency>,这个可以不要，上面有了-->
+			<!--<groupId>org.springframework.boot</groupId>-->
+			<!--<artifactId>spring-boot-starter-aop</artifactId>-->
+		<!--</dependency>-->
+
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+			<version>1.5.1.RELEASE</version>
+		</dependency>
+
+		<!-- 要适配fegin必须引入这个包 -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
+
+
+		<!--<dependency>-->
+			<!--<groupId>com.alibaba.csp</groupId>-->
+			<!--<artifactId>sentinel-core</artifactId>-->
+			<!--<version>1.6.3</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>com.alibaba.csp</groupId>-->
+			<!--<artifactId>sentinel-annotation-aspectj</artifactId>-->
+			<!--<version>1.6.3</version>-->
+		<!--</dependency>-->
+
+		<!-- 从文件获取规则-->
+		<!--<dependency>-->
+			<!--<groupId>com.alibaba.csp</groupId>-->
+			<!--<artifactId>sentinel-datasource-extension</artifactId>-->
+			<!--<version>1.7.1</version>-->
+		<!--</dependency>-->
+
+		<!-- 从nacos获取规则-->
+		<!--<dependency>-->
+			<!--<groupId>com.alibaba.csp</groupId>-->
+			<!--<artifactId>sentinel-datasource-nacos</artifactId>-->
+			<!--<version>1.7.1</version>-->
+		<!--</dependency>-->
+
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>
