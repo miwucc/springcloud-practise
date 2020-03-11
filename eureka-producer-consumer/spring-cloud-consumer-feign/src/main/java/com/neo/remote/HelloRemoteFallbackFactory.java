@@ -30,6 +30,11 @@ public class HelloRemoteFallbackFactory implements FallbackFactory<HelloRemote> 
             }
 
             @Override
+            public String testGzip() {
+                return null;
+            }
+
+            @Override
             public String hello(String name) {
                 logger.error("remote function is fallback ",cause);
                 return "this is fallback hello!";

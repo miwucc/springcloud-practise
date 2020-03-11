@@ -2,16 +2,27 @@ package com.neo.controller;
 
 import com.neo.remote.HelloRemote;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class ConsumerController {
 
     @Autowired
     HelloRemote helloRemote;
+
+    @RequestMapping("/test-feign-gzip")
+    public String testFeignGzip(HttpServletRequest request) {
+        System.out.println(1111);
+        String a= helloRemote.testGzip();
+        return a;
+    }
+
+    @PostMapping("/test-feign-gzip-request")
+    public String addUserGzip(User user){
+        return helloRemote.addUser(user);
+    }
 	
     @RequestMapping("/hello/{name}")
     public String index(@PathVariable("name") String name) {

@@ -37,6 +37,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 )
 public interface HelloRemote {
 
+    @RequestMapping(value = "/test-gzip")
+    public String testGzip();
+
     //使用springMVC注解来绑定该服务提供的REST接口
     @RequestMapping(value = "/hello")
     public String hello(@RequestParam(value = "name") String name);

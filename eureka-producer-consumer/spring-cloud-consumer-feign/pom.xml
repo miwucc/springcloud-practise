@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.neo</groupId>
-	<artifactId>spring-cloud-consumer-hystrix-feign</artifactId>
+	<artifactId>spring-cloud-consumer-feign</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>spring-cloud-consumer-hystrix-feign</name>
-	<description>Demo project for Spring cloud consumer hystrix</description>
+	<name>spring-cloud-consumer-feign</name>
+	<description>Demo project for spring-cloud-consumer-feign</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
