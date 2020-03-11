@@ -5,6 +5,9 @@ import org.springframework.cloud.client.serviceregistry.Registration;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 //@RestController 这个等于加了一个@ResponseBody会固定进行body序列化返回，无法进行redirect
 @Controller
 public class HelloController {
@@ -14,6 +17,21 @@ public class HelloController {
 
 //    @Autowired
 //    private DiscoveryClient client; // 服务发现客户端
+
+
+    @GetMapping("/test-gzip")
+    @ResponseBody
+    public String testGizp(){
+
+        String content = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+        //拼接10次模拟返回大数据,不压缩大概在100K
+        for(int i=0;i<10;i++){
+            content = content + content;
+        }
+
+        return content;
+    }
+
 
     //测试通过自己的FEGIN拦截器之后，GET请求可以传递POJO,如果fegin那边不用拦截器处理，这儿会User里面的属性值都是只能得到null
     @GetMapping("/add-user")
