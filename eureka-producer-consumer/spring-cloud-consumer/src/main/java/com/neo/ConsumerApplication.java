@@ -31,6 +31,7 @@ public class ConsumerApplication {
 //		logger.info("服务启动完毕");
 		startTime = System.currentTimeMillis();
 		isStart = true;
+
 	}
 
 	@PostConstruct

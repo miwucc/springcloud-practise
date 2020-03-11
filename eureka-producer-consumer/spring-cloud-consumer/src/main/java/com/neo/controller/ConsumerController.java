@@ -11,15 +11,70 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 
 @RestController
 public class ConsumerController {
 
     @Autowired
-    HelloRemote HelloRemote;
+    HelloRemote helloRemote;
 
     @Autowired
     RestTemplate restTemplate;
+
+    @RequestMapping("/test-feign-gzip")
+    public String testFeignGzip(HttpServletRequest request) {
+        System.out.println(1111);
+        String a= helloRemote.testGzip();
+        return a;
+    }
+
+    public static int betweenInt(int min, int max, boolean include) {
+        // 参数检查
+        if (min > max) {
+            throw new IllegalArgumentException("最小值[" + min + "]不能大于最大值[" + max + "]");
+        } else if (!include && min == max) {
+            throw new IllegalArgumentException("不包括边界值时最小值[" + min + "]不能等于最大值[" + max + "]");
+        }
+        // 修正边界值
+        if (include) {
+            max++;
+        } else {
+            min++;
+        }
+        return (int) (min + Math.random() * (max - min));
+    }
+
+
+    /**模拟300-500ms的IO阻塞(不消耗CPU),有线程上下文切换，的调用*/
+    @RequestMapping("/test-thread")
+    public String testThread(HttpServletRequest request) {
+
+        String a = request.getRequestURI();
+        if(a.endsWith("/test-thread")){
+            System.out.println(111);
+        }
+
+        String b = request.getServletPath();
+        if(b.endsWith("/test-thread")){
+            System.out.println(111);
+        }
+
+        long sleepMillis = betweenInt(200,500,true);
+
+        try {
+            Thread.sleep(sleepMillis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return "success ! sleep="+sleepMillis;
+    }
+
+    public static void main(String[] args) {
+        BigDecimal a = new BigDecimal(0);
+        System.out.println(a.compareTo(BigDecimal.ZERO));
+    }
 
     /**直接返回调用*/
     @RequestMapping("/hello/local/{name}")
@@ -47,7 +102,7 @@ public class ConsumerController {
         int userID = 1002;
         RibbonUserIdHolder.put(userID);
 
-        return HelloRemote.hello(name);
+        return helloRemote.hello(name);
     }
 
     /**测试采用restTemplate的方式远程调用*/
@@ -92,7 +147,7 @@ public class ConsumerController {
         String result="";
         try{
             //服务名访问地址+路径
-            result =  HelloRemote.throwExp(name);
+            result =  helloRemote.throwExp(name);
         }catch (HttpServerErrorException ex){
             result = ex.getStatusCode()+" "+ex.getResponseBodyAsString();
         //如果是用feign调用，被调用方抛出了异常(实际是http500)，则feigin底层会包装成FeignException
@@ -114,7 +169,7 @@ public class ConsumerController {
         String result=null;
         try{
             //服务名访问地址+路径
-            HelloRemote.noResponse(name);
+            helloRemote.noResponse(name);
         }catch (HttpServerErrorException ex){
             result = ex.getStatusCode()+" "+ex.getResponseBodyAsString();
         }catch(FeignException feignException){
