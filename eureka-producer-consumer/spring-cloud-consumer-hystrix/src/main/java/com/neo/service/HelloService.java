@@ -1,5 +1,6 @@
 package com.neo.service;
 
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.netflix.hystrix.contrib.javanica.annotation.ObservableExecutionMode;
@@ -17,6 +18,7 @@ import java.util.concurrent.Future;
  * 注意，如果用线程隔离模式，因为内部执行用了线程池，threadlocal是无法传递的
  *
  */
+//@DefaultProperties( defaultFallback = "helloRemoteSerivceFallback") 用于设置类级别的断路器默认配置，当@HystrixCommand注解不进行设置的时候，则会用上面这个类级别默认配置
 @Service
 public class HelloService {
 
