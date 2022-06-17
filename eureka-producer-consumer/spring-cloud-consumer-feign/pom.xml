@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
-			<version>1.2.62</version>
+			<version>1.2.83</version>
 		</dependency>
 
 		<!-- 引入 httpclient,上面不会依赖引入，这个必须要自己引入 -->
